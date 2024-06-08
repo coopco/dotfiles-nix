@@ -1,3 +1,7 @@
+Credit:
+- https://github.com/notusknot/dotfiles-nix
+
+
 Hosts
 - host specific configuration
 - host specific package configuration
