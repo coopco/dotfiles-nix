@@ -2,13 +2,16 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ inputs, config, pkgs, ... }:
 
 {
   #imports =
   #  [ # Include the results of the hardware scan.
   #    ./hardware-configuration.nix
   #  ];
+  #imports = [
+  #  inputs.nixvim.nixosModules.nixvim
+  #];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -64,8 +67,8 @@
     (nerdfonts.override { fonts = [ "DejaVuSansMono" ]; })
   ];
 
-  #services.xserver.displayManager.lightdm.enable = false;
-  #services.xserver.displayManager.startx.enable = false;
+  services.xserver.displayManager.lightdm.enable = true;
+  #services.xserver.displayManager.startx.enable = true;
 
   services.xserver.windowManager.dwm.enable = true;
   services.xserver.windowManager.dwm.package = pkgs.dwm.overrideAttrs (oldAttrs: rec {
@@ -110,28 +113,27 @@
     st
 
     # Applications
-    kitty
-    firefox
+    kitty  # Terminal
     firefox-devedition
     discord
     obsidian
     git
-    dmenu
-    rofi
+    dmenu  # Program launcher
+    rofi  # Menus
     activitywatch
-    mullvad-vpn
+    mullvad-vpn  # VPN
     redshift
     syncthing
     syncthingtray
     flameshot
     lazygit
-    spotify
-    zathura
-    htop
-    glances
-    qbittorrent
-    vlc
-    picom-pijulius
+    spotify  # Music service
+    zathura  # PDF viewer
+    htop  # System monitor
+    glances  # System monitor
+    qbittorrent  # Torrent client
+    vlc  # Video player
+    picom-pijulius  # X Compositor
     (lutris.override {
       extraLibraries =  pkgs: [
         # List library dependencies here
@@ -140,33 +142,45 @@
          # List package dependencies here
       ];
     })
-
-
-    nushell
+    zotero_7  # Literature manager
+    papis  # CLI Literature manager
 
     # Audio
     pamixer
     playerctl
+    pavucontrol  # Audio mixer
 
     # Utilities
     blesh
     devour
-    fzf
-    jq
-    feh
-    ranger
+    fzf  # Fuzzy search utility
+    jq  # JSON parser
+    feh  # Image viewer
+    ranger  # TUI file manager
     zsh
-    just
-    sxhkd
-    pavucontrol
-    atuin
-    tree
+    just  # Command runner
+    sxhkd  # Hotkey daemon
+    tree  # Recursive ls
     progress
-    ripgrep
-    difftastic
+    ripgrep  # Search in files
+    difftastic  # difft: Fancy diff
+    xdotool  # Tool for dwm automation
+    xclip  # Clipboard engine
+
+    wireguard-tools
+
+    openvpn
+
+    nix-index  # Search for files within packages
+
+    elvish  # Fancy shell
 
     # libraries
     yajl
+
+    # Packages from flake source
+    # TODO: temp while nixvim broken. Currently installed through nix profile
+    #inputs.nixvim.packages."${pkgs.unstable.system}".default  # Neovim config
   ];
 
 
@@ -188,6 +202,11 @@
         shell = pkgs.bash;
   };
 
+  environment.interactiveShellInit = ''
+    alias v='nvim'
+    alias vi='nvim'
+  '';
+
   # Docker
   virtualisation.docker.enable = true;
 
@@ -199,41 +218,9 @@
   #   enableSSHSupport = true;
   # };
 
-  #programs.neovim = {
-  #  enable = true;
-  #  defaultEditor = true;
-  #  viAlias = true;
-  #  configure = {
-  #    #customRC = ''
-  #    #  set number
-  #    #  set cc=80
-  #    #  set list
-  #    #  set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:¶,precedes:«,extends:»
-  #    #  if &diff
-  #    #    colorscheme blue
-  #    #  endif
-  #    #'';
-  #    #customRC = ''
-  #    #  if $XDG_CONFIG_HOME ==# '''
-  #    #          let $XDG_CONFIG_HOME = $HOME . '/.config'
-  #    #  endif
-  #    #  source $XDG_CONFIG_HOME/nvim/init.vim
-  #    #'';
-  #    packages.myVimPackage = with pkgs.vimPlugins; {
-  #       start = [
-  #         nvim-treesitter.withAllGrammars
-  #       ];
-  #    };
-  #    #  start = [ ctrlp ];
-  #  };
-
   #};
-  #programs.nixvim = {
-  #  enable = true;
 
-  #  colorschemes.gruvbox.enable = true;
-  #  plugins.lightline.enable = true;
-  #};
+
 
  
   programs.steam = {
@@ -249,13 +236,53 @@
     "x-scheme-handler/unknown" = "firefox.desktop";
   };
 
+  # Remote desktop
+  services.xrdp.enable = true;
+  services.xrdp.defaultWindowManager = "dwm";
+  services.xrdp.audio.enable = true;
+  services.xrdp.openFirewall = true;
+
+  #services.tailscale.enable = true;
+
+  #services.x2goserver.enable = true;
+
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    ports = [ 22 ];
+    settings = {
+      PasswordAuthentication = true;
+      #AllowUsers = null;
+      UseDns = true;
+      X11Forwarding = true;
+      PermitRootLogin = "no";
+    };
+  };
+
+  # TODO: declarative sync folders
+  services = {
+    syncthing = {
+        enable = true;
+        user = "connor";
+        dataDir = "/home/connor/Sync";    # Default folder for new synced folders
+        configDir = "/home/connor/.config/syncthing";   # Folder for Syncthing's settings and keys
+    };
+  };
+
+  systemd.services.commandOnBoot = {
+    script = ''
+      sxhkd &
+      feh --bg-scale /home/connor/wallpapers/1px.png &
+    '';
+    wantedBy = [ "multi-user.target" ];
+  };
+
+  #services.tailscale.enable = true;
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
+  networking.firewall.allowedTCPPorts = [ 22 ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
