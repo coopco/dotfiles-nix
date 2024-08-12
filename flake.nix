@@ -3,19 +3,20 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    # https://nixos.wiki/wiki/flakes#Importing_packages_from_multiple_channels
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager = {
             url = "github:nix-community/home-manager/release-24.05";
             inputs.nixpkgs.follows = "nixpkgs";
     };
-  };
 
-  inputs.nixvim = {
-    url = "github:nix-community/nixvim";
-    # If you are not running an unstable channel of nixpkgs, select the corresponding branch of nixvim.
-    # url = "github:nix-community/nixvim/nixos-24.05";
-
-    inputs.nixpkgs.follows = "nixpkgs";
+    # TODO elsewhere
+    nixvim = {
+      #url = "github:nix-community/nixvim/nixos-24.05";
+      url = "github:coopco/nixvim-config";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   #outputs = { self, nixpkgs, ... }@inputs: {
@@ -29,7 +30,7 @@
   #  };
   #};
   # All outputs for the system (configs)
-  outputs = { home-manager, nixpkgs, ... }@inputs: 
+  outputs = { home-manager, nixpkgs, nixpkgs-unstable, ... }@inputs: 
       let
           system = "x86_64-linux";
           pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
@@ -44,6 +45,8 @@
                       { networking.hostName = hostname; }
                       # General configuration (users, networking, sound, etc)
                       ./modules/system/configuration.nix
+		                  # TODO move into actual module
+		                  ./modules/nvim/default.nix
                       # Hardware config (bootloader, kernel modules, filesystems, etc)
                       # DO NOT USE MY HARDWARE CONFIG!! USE YOUR OWN!!
                       (./. + "/hosts/${hostname}/hardware-configuration.nix")
@@ -53,14 +56,19 @@
                               useUserPackages = true;
                               useGlobalPkgs = true;
                               extraSpecialArgs = { inherit inputs; };
+                              backupFileExtension = "backup";
                               # Home manager config (configures programs like firefox, zsh, eww, etc)
                               users.connor = (./. + "/hosts/${hostname}/user.nix");
                           };
-                          #nixpkgs.overlays = [
+                          nixpkgs.overlays = [
+                            # make unstable packages available via overlay
+                            (final: prev: {
+                              unstable = nixpkgs-unstable.legacyPackages.${prev.system};
+                            })
                           #    # Add nur overlay for Firefox addons
                           #    nur.overlay
                           #    (import ./overlays)
-                          #];
+                          ];
                       }
                   ];
                   specialArgs = { inherit inputs; };

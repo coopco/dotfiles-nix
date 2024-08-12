@@ -5,6 +5,7 @@
     config.modules = {
     #    # gui
         firefox.enable = true;
+        shell.enable = true;
     #    #foot.enable = true;
     #    #eww.enable = true;
     #    #dunst.enable = true;
@@ -12,7 +13,7 @@
     #    #wofi.enable = true;
 
     #    # cli
-    #    #nvim.enable = true;
+    #    nvim.enable = true;
     #    zsh.enable = true;
     #    git.enable = true;
     #    #gpg.enable = true;

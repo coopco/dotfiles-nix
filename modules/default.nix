@@ -6,6 +6,7 @@
     imports = [
         # gui
         ./firefox
+        ./shell
         #./foot
         #./eww
         #./dunst
@@ -13,7 +14,7 @@
         #./wofi
 
         ## cli
-        #./nvim
+	#./nvim
         #./zsh
         #./git
         #./gpg
