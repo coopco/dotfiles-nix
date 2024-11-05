@@ -142,7 +142,7 @@
          # List package dependencies here
       ];
     })
-    zotero_7  # Literature manager
+    unstable.zotero # Literature manager
     papis  # CLI Literature manager
 
     # Audio
