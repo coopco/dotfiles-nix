@@ -143,6 +143,7 @@
       ];
     })
     unstable.zotero # Literature manager
+    #unstable.firefox # Test
     papis  # CLI Literature manager
 
     # Audio
@@ -152,7 +153,7 @@
 
     # Utilities
     blesh
-    devour
+    devour  # Hide terminal when launchin X11 app
     fzf  # Fuzzy search utility
     jq  # JSON parser
     feh  # Image viewer
@@ -161,7 +162,7 @@
     just  # Command runner
     sxhkd  # Hotkey daemon
     tree  # Recursive ls
-    progress
+    progress  # Displays progress of certain coreutils currently running
     ripgrep  # Search in files
     difftastic  # difft: Fancy diff
     xdotool  # Tool for dwm automation
@@ -178,9 +179,17 @@
     # libraries
     yajl
 
+    # mullvad tailscale
+    nftables
+
+    # password manager
+    keepassxc
+
     # Packages from flake source
     # TODO: temp while nixvim broken. Currently installed through nix profile
     #inputs.nixvim.packages."${pkgs.unstable.system}".default  # Neovim config
+
+    unstable.libsForQt5.kdeconnect-kde
   ];
 
 
@@ -207,8 +216,16 @@
     alias vi='nvim'
   '';
 
+  #environment.sessionVariables = {
+  #  ANTHROPIC_API_KEY = builtins.readFile /home/connor/secrets/anthropic;
+  #  OPENAI_KEY = builtins.readFile /home/connor/secrets/openai;
+  #};
+
   # Docker
   virtualisation.docker.enable = true;
+
+  # Waydroid
+  virtualisation.waydroid.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -279,7 +296,8 @@
     wantedBy = [ "multi-user.target" ];
   };
 
-  #services.tailscale.enable = true;
+  services.tailscale.enable = true;
+  services.resolved.enable = true;
 
   # Open ports in the firewall.
   networking.firewall.allowedTCPPorts = [ 22 ];
@@ -295,5 +313,9 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.05"; # Did you read the comment?
 
+  # Bluetooth
+  services.blueman.enable = true;
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
 }
 
