@@ -24,8 +24,8 @@
     options snd slots=snd_hda_intel
   '';
 
-  networking.hostName = "desktop"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  #networking.hostName = "desktop"; # Define your hostname.
+  #networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -54,9 +54,6 @@
 
   services.xserver.enable = true;
 
-  # Proprietary drivers
-  services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.nvidia.open = true;
 
 
   # Configure keymap in X11

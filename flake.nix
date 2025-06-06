@@ -89,6 +89,7 @@
               # Now, defining a new system is can be done in one line
               #                                Architecture   Hostname
               desktop = mkSystem inputs.nixpkgs "x86_64-linux" "desktop";
+              laptop = mkSystem inputs.nixpkgs "x86_64-linux" "laptop";
           };
   };
 }

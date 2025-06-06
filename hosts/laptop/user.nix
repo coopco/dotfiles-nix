@@ -23,7 +23,4 @@
     #    #xdg.enable = true;
     #    #packages.enable = true;
     };
-    # Proprietary drivers
-    services.xserver.videoDrivers = [ "nvidia" ];
-    hardware.nvidia.open = true;
 }
