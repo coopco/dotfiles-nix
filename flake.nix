@@ -2,14 +2,16 @@
   description = "A simple NixOS flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     # https://nixos.wiki/wiki/flakes#Importing_packages_from_multiple_channels
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     home-manager = {
-            url = "github:nix-community/home-manager/release-24.05";
-            inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/home-manager/release-25.05";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nur.url = "github:nix-community/NUR";
 
     # TODO elsewhere
     nixvim = {
@@ -30,7 +32,7 @@
   #  };
   #};
   # All outputs for the system (configs)
-  outputs = { home-manager, nixpkgs, nixpkgs-unstable, ... }@inputs: 
+  outputs = { home-manager, nixpkgs, nixpkgs-unstable, nur, ... }@inputs: 
       let
           system = "x86_64-linux";
           pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
@@ -60,16 +62,24 @@
                               # Home manager config (configures programs like firefox, zsh, eww, etc)
                               users.connor = (./. + "/hosts/${hostname}/user.nix");
                           };
+                          nixpkgs.config.allowUnfree = true;
                           nixpkgs.overlays = [
                             # make unstable packages available via overlay
                             (final: prev: {
-                              unstable = nixpkgs-unstable.legacyPackages.${prev.system};
+                              unstable = import nixpkgs-unstable {
+                                inherit system;
+                                config.allowUnfree = true;
+                              };
                             })
                           #    # Add nur overlay for Firefox addons
                           #    nur.overlay
                           #    (import ./overlays)
                           ];
                       }
+                      # Adds the NUR overlay
+                      nur.modules.nixos.default
+                      # NUR modules to import
+                      nur.legacyPackages."${system}".repos.iopq.modules.xraya
                   ];
                   specialArgs = { inherit inputs; };
               };

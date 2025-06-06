@@ -2,9 +2,12 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ inputs, config, pkgs, ... }:
+{ inputs, config, pkgs, lib, ... }:
 
 {
+  #imports = [
+  #  inputs.nur.repos.moredhel.hmModules.rawModules
+  #];
   #imports =
   #  [ # Include the results of the hardware scan.
   #    ./hardware-configuration.nix
@@ -53,6 +56,7 @@
 
   # Proprietary drivers
   services.xserver.videoDrivers = [ "nvidia" ];
+  hardware.nvidia.open = true;
 
 
   # Configure keymap in X11
@@ -64,7 +68,7 @@
 
   # Fonts
   fonts.packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "DejaVuSansMono" ]; })
+    nerd-fonts.dejavu-sans-mono
   ];
 
   services.xserver.displayManager.lightdm.enable = true;
@@ -90,9 +94,6 @@
 
   # Enable automatic login for the user.
   services.getty.autologinUser = "connor";
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
 
   # Enable flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -131,7 +132,7 @@
     zathura  # PDF viewer
     htop  # System monitor
     glances  # System monitor
-    qbittorrent  # Torrent client
+    unstable.qbittorrent  # Torrent client
     vlc  # Video player
     picom-pijulius  # X Compositor
     (lutris.override {
@@ -190,8 +191,17 @@
     #inputs.nixvim.packages."${pkgs.unstable.system}".default  # Neovim config
 
     unstable.libsForQt5.kdeconnect-kde
-  ];
 
+    # nur
+    nur.repos.mic92.hello-nur
+
+    # Screen drawing tool
+    gromit-mpx
+
+    unstable.claude-code
+
+    vdhcoapp
+  ];
 
   # Flatpak
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
@@ -202,8 +212,8 @@
   services.mullvad-vpn.enable = true;
 
   # Audio
-  sound.enable = true; 
   hardware.pulseaudio.enable = true;
+  services.pipewire.enable = false;
   hardware.pulseaudio.support32Bit = true;
   users.extraUsers.connor.extraGroups = [ "audio" ];
 
@@ -223,6 +233,10 @@
 
   # Docker
   virtualisation.docker.enable = true;
+  virtualisation.docker.rootless = {
+    enable = true;
+    setSocketVariable = true;
+  };
 
   # Waydroid
   virtualisation.waydroid.enable = true;
@@ -317,5 +331,7 @@
   services.blueman.enable = true;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
+
+  services.earlyoom.enable = true;
 }
 
