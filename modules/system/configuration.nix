@@ -198,6 +198,8 @@
     unstable.claude-code
 
     vdhcoapp
+
+    light
   ];
 
   # Flatpak
@@ -212,7 +214,13 @@
   hardware.pulseaudio.enable = true;
   services.pipewire.enable = false;
   hardware.pulseaudio.support32Bit = true;
-  users.extraUsers.connor.extraGroups = [ "audio" ];
+  users.extraUsers.connor.extraGroups = [ "audio" "video" ];
+
+  # Brightness
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="backlight", RUN+="${pkgs.coreutils}/bin/chgrp video /sys/class/backlight/%k/brightness"
+    ACTION=="add", SUBSYSTEM=="backlight", RUN+="${pkgs.coreutils}/bin/chmod g+w /sys/class/backlight/%k/brightness"
+  '';
 
   users.users.connor = {
         shell = pkgs.bash;
