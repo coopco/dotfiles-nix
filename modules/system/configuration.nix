@@ -76,6 +76,9 @@
     src = /home/connor/Projects/wm/dwm;
     buildInputs = oldAttrs.buildInputs ++ [ pkgs.yajl ];
   });
+  services.xserver.windowManager.dwm.extraSessionCommands = ''
+    redshift -O 3600 &
+  '';
 
   programs.hyprland.enable = true;
 
