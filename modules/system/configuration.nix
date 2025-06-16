@@ -32,7 +32,15 @@
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
+  #networking.wireless.iwd = {
+  #  enable = true;
+  #  settings.Settings.AutoConnect = true;
+  #  settings.General.EnableNetworkConfiguration = true;
+  #};
   networking.networkmanager.enable = true;
+  networking.networkmanager.wifi.backend = "iwd";
+  networking.networkmanager.wifi.powersave = false;
+
 
   # Set your time zone.
   time.timeZone = "Australia/Melbourne";
@@ -59,7 +67,7 @@
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "au";
-    options = "ctrl:swapcaps";
+    options = "ctrl:nocaps";
     variant = "";
   };
 
@@ -187,7 +195,6 @@
     keepassxc
 
     # Packages from flake source
-    # TODO: temp while nixvim broken. Currently installed through nix profile
     #inputs.nixvim.packages."${pkgs.unstable.system}".default  # Neovim config
 
     unstable.libsForQt5.kdeconnect-kde
@@ -203,6 +210,9 @@
     vdhcoapp
 
     light
+    acpi
+
+    sshfs
   ];
 
   # Flatpak
@@ -220,9 +230,11 @@
   users.extraUsers.connor.extraGroups = [ "audio" "video" ];
 
   # Brightness
+  # Ensure iw powersave is disabled
   services.udev.extraRules = ''
     ACTION=="add", SUBSYSTEM=="backlight", RUN+="${pkgs.coreutils}/bin/chgrp video /sys/class/backlight/%k/brightness"
     ACTION=="add", SUBSYSTEM=="backlight", RUN+="${pkgs.coreutils}/bin/chmod g+w /sys/class/backlight/%k/brightness"
+    ACTION=="add", SUBSYSTEM=="net", KERNEL=="wl*", RUN+="${pkgs.iw}/bin/iw dev %k set power_save off"
   '';
 
   users.users.connor = {
@@ -232,6 +244,7 @@
   environment.interactiveShellInit = ''
     alias v='nvim'
     alias vi='nvim'
+    source /home/connor/Projects/rehash/shell/rehash.bash
   '';
 
   #environment.sessionVariables = {
@@ -308,14 +321,6 @@
         dataDir = "/home/connor/Sync";    # Default folder for new synced folders
         configDir = "/home/connor/.config/syncthing";   # Folder for Syncthing's settings and keys
     };
-  };
-
-  systemd.services.commandOnBoot = {
-    script = ''
-      sxhkd &
-      feh --bg-scale /home/connor/wallpapers/1px.png &
-    '';
-    wantedBy = [ "multi-user.target" ];
   };
 
   services.tailscale.enable = true;
