@@ -27,6 +27,18 @@
   swapDevices =
     [ { device = "/dev/disk/by-uuid/a0e7a1cc-2d91-4134-ae96-826a565e0edb"; }
     ];
+  # For hibernation
+  boot.resumeDevice = "/dev/disk/by-uuid/a0e7a1cc-2d91-4134-ae96-826a565e0edb";
+  # Go into hibernation after 1 hour of suspension
+  systemd.sleep.extraConfig = ''
+    HibernateDelaySec=1h
+  '';
+  # TODO: how to ignore -> suspend after certain time
+  services.logind = {
+    lidSwitch = "suspend";
+    lidSwitchExternalPower = "lock";
+    lidSwitchDocked = "ignore";
+  };
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
