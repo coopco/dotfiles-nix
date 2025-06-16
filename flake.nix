@@ -15,10 +15,19 @@
 
     # TODO elsewhere
     nixvim = {
-      #url = "github:nix-community/nixvim/nixos-24.05";
       url = "github:coopco/nixvim-config";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    my-packages = {
+      url = "path:./overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    ## Add rehash as input
+    #rehash = {
+    #  url = "path:/home/connor/Projects/rehash";  # or github:user/rehash when published
+    #  inputs.nixpkgs.follows = "nixpkgs";
+    #};
   };
 
   #outputs = { self, nixpkgs, ... }@inputs: {
@@ -32,7 +41,7 @@
   #  };
   #};
   # All outputs for the system (configs)
-  outputs = { home-manager, nixpkgs, nixpkgs-unstable, nur, ... }@inputs: 
+  outputs = { home-manager, nixpkgs, nixpkgs-unstable, nur, my-packages, ... }@inputs: 
       let
           system = "x86_64-linux";
           pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
@@ -60,7 +69,7 @@
                               extraSpecialArgs = { inherit inputs; };
                               backupFileExtension = "backup";
                               # Home manager config (configures programs like firefox, zsh, eww, etc)
-                              users.connor = (./. + "/hosts/${hostname}/user.nix");
+                              users.connor = import (./. + "/hosts/${hostname}/user.nix");
                           };
                           nixpkgs.config.allowUnfree = true;
                           nixpkgs.overlays = [
@@ -71,6 +80,8 @@
                                 config.allowUnfree = true;
                               };
                             })
+                            # Add your custom packages overlay
+                            (final: prev: my-packages.packages.${system} or {})
                           #    # Add nur overlay for Firefox addons
                           #    nur.overlay
                           #    (import ./overlays)

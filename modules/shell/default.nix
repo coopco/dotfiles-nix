@@ -1,10 +1,12 @@
-{ lib, config, ... }:
+{ pkgs, lib, config, inputs, ... }:
 
 with lib;
 let cfg = config.modules.shell;
 
 in {
-  options.modules.shell = { enable = mkEnableOption "shell"; };
+  options.modules.shell = { 
+    enable = mkEnableOption "shell"; 
+  };
   config = mkIf cfg.enable {
     programs.nushell = {
       enable = true;
@@ -20,16 +22,6 @@ in {
       enableBashIntegration = true;
       enableNushellIntegration = true;
       nix-direnv.enable = true;
-    };
-
-    programs.atuin = {
-      enable = true;
-      enableBashIntegration = true;
-      enableNushellIntegration = true;
-      settings = {
-        filter_mode = "directory";
-        filter_mode_shell_up_key_binding = "session";
-      };
     };
 
     # TODO:
