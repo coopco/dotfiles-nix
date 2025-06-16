@@ -244,7 +244,7 @@
   environment.interactiveShellInit = ''
     alias v='nvim'
     alias vi='nvim'
-    source /home/connor/Projects/rehash/shell/rehash.bash
+    source ${pkgs.rehash}/shell/rehash.bash
   '';
 
   #environment.sessionVariables = {
