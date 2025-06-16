@@ -1,18 +1,22 @@
 {
+  description = "My package collection";
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    rehash.url = "path:/home/connor/Projects/rehash";
-    #my-tool.url = "github:me/my-tool";
-    #another-tool.url = "github:me/another-tool";
-    # This file grows, but main flake.nix doesn't
+    # Add this missing input:
+    rehash = {
+      url = "github:coopco/rehash";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, ... }@inputs:
-    nixpkgs.lib.genAttrs [ "x86_64-linux" ] (system: {
-      packages.${system} = {
-        rehash = inputs.rehash.packages.${system}.default;
-        my-tool = inputs.my-tool.packages.${system}.default;
-        another-tool = inputs.another-tool.packages.${system}.default;
-      };
-    });
+  outputs = { nixpkgs, rehash, ... }@inputs:
+    let
+      systems = [ "x86_64-linux" ];
+    in
+    {
+      packages = nixpkgs.lib.genAttrs systems (system: {
+        rehash = rehash.packages.${system}.default;
+      });
+    };
 }
