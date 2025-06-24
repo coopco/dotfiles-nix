@@ -213,6 +213,9 @@
     acpi
 
     sshfs
+
+    tv
+    systemctl-tui
   ];
 
   # Flatpak
@@ -251,6 +254,9 @@
   #  ANTHROPIC_API_KEY = builtins.readFile /home/connor/secrets/anthropic;
   #  OPENAI_KEY = builtins.readFile /home/connor/secrets/openai;
   #};
+  environment.variables = {
+    EDITOR = "nvim";
+  };
 
   # Docker
   virtualisation.docker.enable = true;
@@ -346,5 +352,9 @@
   hardware.bluetooth.powerOnBoot = true;
 
   services.earlyoom.enable = true;
+
+  programs.nh = {
+    enable = true;
+  };
 }
 
