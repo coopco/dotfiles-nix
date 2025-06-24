@@ -33,12 +33,17 @@
   systemd.sleep.extraConfig = ''
     HibernateDelaySec=1h
   '';
-  # TODO: how to ignore -> suspend after certain time
   services.logind = {
     lidSwitch = "suspend";
-    lidSwitchExternalPower = "lock";
-    lidSwitchDocked = "ignore";
+    lidSwitchExternalPower = "suspend";
+    lidSwitchDocked = "suspend";
   };
+
+  # framework updater
+  # TODO: wait for AI 300 NixOS Hardware modules
+  services.fwupd.enable = true;
+  # TODO: do I have a fingerprint reader?
+  #services.fprintd.enable = true;
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
